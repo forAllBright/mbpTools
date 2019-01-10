@@ -1,0 +1,99 @@
+# -*- coding: utf-8 -*-
+# @Author: pmz
+# @Date:   2018-12-23 20:58:29
+# @Last Modified by:   pmz
+# @Last Modified time: 2018-12-23 22:00:08
+# TODO: 后续增加 seu status 命令,用来显示登录或登的状态,不做登录或登出动作.
+
+import urllib
+from workflow import Workflow, web
+import sys
+import json
+import socket
+import time
+import datetime
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+ICON_DEFAULT = 'FLOW_ICON.png'
+ICON_LOGIN = 'ICON_LOGIN.png'
+ICON_IP = 'ICON_IP.png'
+ICON_ERROR = 'ICON_ERROR.png'
+
+
+def get_set_lastlogin_timer():
+    data = ''
+    with open('timer.json', 'r') as f:
+        data = json.loads(f.read())
+    last_login_time = int(data['last_login_time'])
+    data['last_login_time'] = int(time.time())
+    with open('timer.json', 'w') as f:
+        json.dump(data, f)
+    return last_login_time
+
+
+def get_post_web_data(url, username, password):
+    auth = {"username": username, "password": password}
+    headers = {
+        "User-Agent":
+        r"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+    }
+    resp = web.post(url=url, params=auth, headers=headers).json()
+    return resp
+
+
+def main(wf):
+    url = sys.argv[sys.argv.index('-url') + 1] if '-url' in sys.argv else None
+    url_ip = socket.gethostbyname(url)
+    username = ''
+    password = ''
+    query = str(wf.args[0]).strip()
+    if not query:
+        wf.add_item('seu-wlan login')
+        wf.send_feedback()
+        return 0
+
+    if wf.args[0].strip() == "login":
+        url = "http://{}/index.php/index/login".format(url_ip)
+        username = sys.argv[sys.argv.index('-username') +
+                            1] if '-username' in sys.argv else None
+        password = sys.argv[sys.argv.index('-password') +
+                            1] if '-password' in sys.argv else None
+        # wf.add_item(
+        #     title="Login",
+        #     valid=True,
+        #     icon=ICON_LOGIN)
+    elif wf.args[0].strip() == "logout":
+        url = "http://{}/index.php/index/logout".format(url_ip)
+        # wf.add_item(
+        #     title="Logout",
+        #     valid=True,
+        #     icon=ICON_LOGIN)
+    else:
+        pass
+
+    resp = get_post_web_data(url, username, password)
+    # wf.add_item(
+    #     title="Login Status",
+    #     subtitle=resp['info'],
+    #     arg=resp['info'],
+    #     valid=True,
+    #     icon=ICON_LOGIN)
+
+    print resp['info'].decode('utf-8')
+
+    if 'logout_ip' in resp:
+        # wf.add_item(
+        #     title="Last logout IP: {}".format(resp['logout_ip']),
+        #     valid=True,
+        #     icon=ICON_IP)
+        print "上次登录IP: {}".format(resp['logout_ip'])
+    if wf.args[0].strip() == "login":
+        print "上次登录时间: {}".format(datetime.datetime.fromtimestamp(get_set_lastlogin_timer()))
+
+    # wf.send_feedback()
+
+if __name__ == '__main__':
+    wf = Workflow()
+    sys.exit(wf.run(main))

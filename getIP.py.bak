@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import requests
+from bs4 import BeautifulSoup
+from pprint import pprint
+import re
+import socket
+
+try:
+    resp = requests.get(
+        r"https://www.ipchicken.com/",
+        headers={
+            "User-Agent":
+            r"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+        },  # headers
+        verify=True)
+    data = BeautifulSoup(resp.text, "html.parser")
+    # pprint(data.find_all(face="Verdana, Arial, Helvetica, sans-serif", size="5"))
+    ip_html =data.find_all(face="Verdana, Arial, Helvetica, sans-serif", size="5")
+    ip_tag = ip_html[0]
+    ip_str = str(ip_tag)
+    ip = ''
+    o_ip_tmp = re.search(r'(\d+\.)+\d+',ip_str)
+    o_ip = o_ip_tmp.group(0)
+    print("Outside address: {}".format(o_ip))
+except:
+    print("WWAN Offline")
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+try:
+    s.connect(("8.8.8.8", 80))
+    i_ip = s.getsockname()[0]
+    if not i_ip == '0.0.0.0':
+        print("LAN address: {}".format(i_ip))
+    else:
+        print("LAN Offline")
+except:
+    print("LAN Offline")
+s.close()

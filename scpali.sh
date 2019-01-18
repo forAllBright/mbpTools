@@ -39,9 +39,9 @@ function PrintInfo()
                         ||----w |
                         ||     ||
         \033[0m"
-        if [[ "$1" = *"dir" ]]; then
+        if [[ "$option" = *"dir" ]]; then
             # echo -e "\033[32m****** Your directory [ ${file_dir##*/} ] has been --downloaded ******\033[0m"
-            if [[ "$1" = "--up"*  ]]; then
+            if [[ "$option" = "--up"*  ]]; then
                 if [[ -z "$given_dir" ]]; then
                     echo -e "\033[32m****** uploaded remote directory path [ ~/${file_dir##*/} ] ******\033[0m"
                 else
@@ -56,7 +56,7 @@ function PrintInfo()
             fi
         else
             # echo -e "\033[32m****** Your file [ ${file_dir##*/} ] has been --downloaded ******\033[0m"
-            if [[ "$1" = "--up"*  ]]; then
+            if [[ "$option" = "--up"*  ]]; then
                 if [[ -z "$given_dir" ]]; then
                     echo -e "\033[32m****** uploaded remote file path [ ~/${file_dir##*/} ] ******\033[0m"
                 else

@@ -3,7 +3,10 @@
 # @Author: forAllBright
 # @Date:   2018-12-22 17:58:16
 # @Last Modified by:   forAllBright
-# @Last Modified time: 2018-12-23 00:29:42
+# @Last Modified time: 2019-03-13 16:40:54
+########################################################
+# 用来配合 Alfred 快速认证登录校园网
+########################################################
 
 import requests
 from bs4 import BeautifulSoup
@@ -86,8 +89,8 @@ def parse_response(resp):
 
 if __name__ == "__main__":
     main_url = "w.seu.edu.cn"
-    username = "220170960"
-    password = "NTMwODk3MDI1enBt"
+    username = "你的账号"
+    password = "base64加密后你的密码"
     main_ip = pre_login(main_url)
     resp = ''
     if args.log == 'login':
